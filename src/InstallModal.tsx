@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Apple, Smartphone, X, Share, PlusSquare, Home } from 'lucide-react'
 
 interface Props {
@@ -9,25 +9,7 @@ interface Props {
 const Battambang: React.CSSProperties = { fontFamily: "'Battambang', sans-serif" }
 
 const InstallModal: React.FC<Props> = ({ open, onClose }) => {
-  const [platform, setPlatform] = useState<'ios' | 'android'>('ios')
-
   if (!open) return null
-
-  const iosSteps = [
-    { text: 'បើកគេហទំព័រ KH Invoice ក្នុង Safari' },
-    { text: 'ចុចប៊ូតុង Share នៅខាងក្រោម', icon: <Share size={16} /> },
-    { text: 'ជ្រើសរើស «Add to Home Screen»', icon: <PlusSquare size={16} /> },
-    { text: 'ចុច «Add» — icon KH Invoice នឹងបង្ហាញនៅ Home Screen', icon: <Home size={16} /> },
-  ]
-
-  const androidSteps = [
-    { text: 'បើកគេហទំព័រ KH Invoice ក្នុង Chrome' },
-    { text: 'ចុចម៉ឺនុយ ⋮ នៅខាងស្ដាំខាងលើ' },
-    { text: 'ជ្រើសរើស «Add to Home screen»' },
-    { text: 'ចុច «Add» — icon KH Invoice នឹងបង្ហាញនៅ Home Screen', icon: <Home size={16} /> },
-  ]
-
-  const steps = platform === 'ios' ? iosSteps : androidSteps
 
   return (
     <div
@@ -58,9 +40,16 @@ const InstallModal: React.FC<Props> = ({ open, onClose }) => {
           color: '#0B2A4A',
           position: 'relative',
           boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
-          animation: 'modalIn 0.3s ease',
+          animation: 'slideUp 0.3s ease',
         }}
       >
+        <style>{`
+          @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        `}</style>
+
         <button
           onClick={onClose}
           style={{
@@ -98,36 +87,30 @@ const InstallModal: React.FC<Props> = ({ open, onClose }) => {
         </div>
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-          <PlatformTab
-            active={platform === 'ios'}
-            onClick={() => setPlatform('ios')}
-            label="iOS (Safari)"
-            icon={<Apple size={16} />}
-          />
-          <PlatformTab
-            active={platform === 'android'}
-            onClick={() => setPlatform('android')}
-            label="Android (Chrome)"
-            icon={<Smartphone size={16} />}
-          />
+          <PlatformTab active label="iOS (Safari)" icon={<Apple size={16} />} />
+          <PlatformTab label="Android (Chrome)" icon={<Smartphone size={16} />} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {steps.map((step, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: 'rgba(217,164,65,0.15)',
-                color: '#D9A441',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 13, fontWeight: 700, flexShrink: 0,
-              }}>{i + 1}</div>
-              <div style={{ fontSize: 13, color: '#0B2A4A', display: 'flex', alignItems: 'center', gap: 6 }}>
-                {step.text}
-                {step.icon && <span style={{ color: '#378ADD' }}>{step.icon}</span>}
-              </div>
-            </div>
-          ))}
+          <Step
+            num={1}
+            text="បើកគេហទំព័រ KH Invoice ក្នុង Safari"
+          />
+          <Step
+            num={2}
+            text="ចុចប៊ូតុង Share នៅខាងក្រោម"
+            icon={<Share size={16} />}
+          />
+          <Step
+            num={3}
+            text="ជ្រើសរើស «Add to Home Screen»"
+            icon={<PlusSquare size={16} />}
+          />
+          <Step
+            num={4}
+            text="ចុច «Add» ហើយ icon KH Invoice នឹងបង្ហាញនៅ Home Screen"
+            icon={<Home size={16} />}
+          />
         </div>
 
         <button
@@ -151,32 +134,40 @@ const InstallModal: React.FC<Props> = ({ open, onClose }) => {
   )
 }
 
-const PlatformTab: React.FC<{
-  active: boolean
-  onClick: () => void
-  label: string
-  icon: React.ReactNode
-}> = ({ active, onClick, label, icon }) => (
-  <button
-    onClick={onClick}
-    style={{
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
-      padding: '10px 8px',
-      borderRadius: 10,
-      fontSize: 12,
-      fontWeight: 700,
-      background: active ? '#0B2A4A' : 'rgba(11,42,74,0.06)',
-      color: active ? '#fff' : '#0B2A4A',
-      transition: 'all 0.2s',
-    }}
-  >
+const PlatformTab: React.FC<{ active?: boolean; label: string; icon: React.ReactNode }> = ({ active, label, icon }) => (
+  <div style={{
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    padding: '10px 8px',
+    borderRadius: 10,
+    fontSize: 12,
+    fontWeight: 700,
+    background: active ? '#0B2A4A' : 'rgba(11,42,74,0.06)',
+    color: active ? '#fff' : '#0B2A4A',
+    transition: 'all 0.2s',
+  }}>
     {icon}
     {label}
-  </button>
+  </div>
+)
+
+const Step: React.FC<{ num: number; text: string; icon?: React.ReactNode }> = ({ num, text, icon }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{
+      width: 28, height: 28, borderRadius: '50%',
+      background: 'rgba(217,164,65,0.15)',
+      color: '#D9A441',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 13, fontWeight: 700, flexShrink: 0,
+    }}>{num}</div>
+    <div style={{ fontSize: 13, color: '#0B2A4A', display: 'flex', alignItems: 'center', gap: 6 }}>
+      {text}
+      {icon && <span style={{ color: '#378ADD' }}>{icon}</span>}
+    </div>
+  </div>
 )
 
 export default InstallModal
