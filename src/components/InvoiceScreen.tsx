@@ -408,7 +408,7 @@ export default function InvoiceScreen({ lang, profile, onBack, editInvoiceId }: 
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: COLORS.bgApp, ...khmerFont }}>
+    <div className="h-full flex flex-col" style={{ backgroundColor: COLORS.bgApp, ...khmerFont }}>
       {/* Upper header navigation */}
       <div className="px-4 pt-5 pb-4 flex items-center gap-3" style={{ background: `linear-gradient(135deg, ${COLORS.navyGradientStart}, ${COLORS.navyGradientEnd})` }}>
         <button onClick={onBack} className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
