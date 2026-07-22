@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a3a8f"/>
+      <stop offset="0.55" stop-color="#1747a6"/>
+      <stop offset="1" stop-color="#0c2461"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#e8a316"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Full-bleed background (no rounding; OS applies its own mask shape) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Receipt card -->
+  <path d="M156 100 H356 A16 16 0 0 1 372 116 V400
+           L346 386 L320 400 L294 386 L268 400 L242 386 L216 400 L190 386 L164 400 V116
+           A16 16 0 0 1 156 100 Z"
+        fill="#ffffff"/>
+
+  <!-- Receipt lines -->
+  <rect x="196" y="152" width="140" height="14" rx="7" fill="#173a8f" opacity="0.85"/>
+  <rect x="196" y="184" width="120" height="10" rx="5" fill="#173a8f" opacity="0.35"/>
+  <rect x="196" y="210" width="140" height="10" rx="5" fill="#173a8f" opacity="0.35"/>
+  <rect x="196" y="236" width="90" height="10" rx="5" fill="#173a8f" opacity="0.35"/>
+
+  <line x1="196" y1="268" x2="336" y2="268" stroke="#173a8f" stroke-width="3" opacity="0.2"/>
+
+  <rect x="196" y="288" width="80" height="12" rx="6" fill="#173a8f" opacity="0.55"/>
+  <rect x="266" y="288" width="70" height="12" rx="6" fill="#e8a316" opacity="0.9"/>
+
+  <!-- Gold badge with check -->
+  <circle cx="352" cy="330" r="56" fill="url(#gold)" stroke="#ffffff" stroke-width="8"/>
+  <path d="M328 330 L344 346 L378 310" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
