@@ -166,12 +166,12 @@ export default function InstallScreen({ lang, onLangToggle, onSignIn, onSignUp, 
           style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)' }}
         >
           <div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: COLORS.gold, boxShadow: `0 8px 24px ${COLORS.gold}66` }}
+            className="w-20 h-20 rounded-2xl overflow-hidden mb-3"
+            style={{ boxShadow: `0 8px 24px rgba(0,0,0,0.35)` }}
           >
-            <Receipt size={40} color="#FFFFFF" strokeWidth={2} />
+            <img src="/icon.svg" alt="KH Invoice" className="w-full h-full object-cover" />
           </div>
-          <span className="text-2xl font-extrabold text-white tracking-wide" style={latinFont}>
+          <span className="text-xl font-extrabold text-white tracking-wide" style={latinFont}>
             KH INVOICE
           </span>
           <p className="text-xs text-white/80 text-center mt-1.5 leading-relaxed max-w-xs">
