@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   X,
   Clock,
@@ -15,11 +15,6 @@ import {
   DollarSign,
   Percent,
   FileText,
-  Loader2,
-  RefreshCw,
-  ChevronDown,
-  ChevronUp,
-  Smartphone,
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { COLORS, latinFont } from '../lib/theme';
@@ -68,76 +63,6 @@ export default function SubscriptionModal({ lang, profile, trialDaysRemaining, o
   const [proofUrl, setProofUrl] = useState<string | null>(null);
   const [proofUploading, setProofUploading] = useState(false);
   const proofInputRef = useRef<HTMLInputElement>(null);
-
-  // --- Automatic ABA KHQR payment (create-qr-payment / check-qr-status Edge Functions) ---
-  type AutoStatus = 'idle' | 'loading' | 'waiting' | 'confirmed' | 'expired' | 'error';
-  const [autoStatus, setAutoStatus] = useState<AutoStatus>('idle');
-  const [autoQr, setAutoQr] = useState<{ requestId: string; qrImage: string; abapayDeeplink?: string } | null>(null);
-  const [autoError, setAutoError] = useState('');
-  const [secondsLeft, setSecondsLeft] = useState(0);
-  const [showManual, setShowManual] = useState(false);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const stopTimers = () => {
-    if (pollRef.current) clearInterval(pollRef.current);
-    if (countdownRef.current) clearInterval(countdownRef.current);
-  };
-
-  useEffect(() => stopTimers, []);
-
-  // Changing the plan invalidates any QR already on screen (different amount).
-  useEffect(() => {
-    stopTimers();
-    setAutoStatus('idle');
-    setAutoQr(null);
-    setAutoError('');
-  }, [selected]);
-
-  const startPolling = (requestId: string) => {
-    if (pollRef.current) clearInterval(pollRef.current);
-    pollRef.current = setInterval(async () => {
-      const { data } = await supabase.functions.invoke('check-qr-status', { body: { requestId } });
-      if (data?.status === 'confirmed') {
-        stopTimers();
-        setAutoStatus('confirmed');
-        setSubmitted(true);
-      } else if (data?.status === 'expired') {
-        stopTimers();
-        setAutoStatus('expired');
-      }
-    }, 3000);
-  };
-
-  const handleGenerateAutoQr = async () => {
-    setAutoStatus('loading');
-    setAutoError('');
-    const { data, error } = await supabase.functions.invoke('create-qr-payment', {
-      body: { plan: selected },
-    });
-    if (error || data?.error) {
-      setAutoStatus('error');
-      setAutoError(data?.error || data?.detail || error?.message || 'Something went wrong');
-      return;
-    }
-    setAutoQr({ requestId: data.requestId, qrImage: data.qrImage, abapayDeeplink: data.abapayDeeplink });
-    setSecondsLeft(data.expiresInSeconds || 900);
-    setAutoStatus('waiting');
-    startPolling(data.requestId);
-
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    countdownRef.current = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          if (countdownRef.current) clearInterval(countdownRef.current);
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
-  };
-
-  const formatCountdown = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   const selectedPlan = PLANS.find((p) => p.key === selected)!;
   const effectiveAmount = amountPaid.trim() === '' ? selectedPlan.price : parseFloat(amountPaid) || 0;
@@ -286,123 +211,7 @@ export default function SubscriptionModal({ lang, profile, trialDaysRemaining, o
                 })}
               </div>
 
-              {/* Auto-Pay card: generates a real, one-time ABA KHQR code for the exact plan price and
-                  auto-confirms the subscription once PayWay reports the payment as approved. */}
-              <div className="rounded-2xl border p-4 mb-3" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgApp }}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className="w-6 h-6 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: COLORS.navy }}
-                    >
-                      <DollarSign size={13} color="#FFFFFF" strokeWidth={2.5} />
-                    </span>
-                    <span className="text-[11px] font-bold" style={{ color: COLORS.muted }}>USD</span>
-                  </div>
-                  <p className="text-xl font-extrabold" style={{ color: COLORS.navy, ...latinFont }}>
-                    ${selectedPlan.price}
-                    <span className="text-[10px] font-semibold ml-1" style={{ color: COLORS.muted }}>
-                      / {lang === 'KH' ? selectedPlan.labelKh : selectedPlan.labelEn}
-                    </span>
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-1.5 mb-3 justify-center">
-                  <QrCode size={14} color={COLORS.navy} strokeWidth={2} />
-                  <p className="text-[11px] font-bold" style={{ color: COLORS.navy }}>
-                    {tr('ស្កេនទូទាត់ (ស្វ័យប្រវត្តិ)', 'Scan to Pay (Automatic)')}
-                  </p>
-                </div>
-
-                {autoStatus === 'idle' && (
-                  <button
-                    onClick={handleGenerateAutoQr}
-                    className="w-full py-3 rounded-xl font-bold text-white text-xs flex items-center justify-center gap-1.5"
-                    style={{ backgroundColor: COLORS.navy }}
-                  >
-                    <QrCode size={14} color="#FFFFFF" strokeWidth={2} />
-                    {tr('បង្កើត QR ទូទាត់', 'Generate Payment QR')}
-                  </button>
-                )}
-
-                {autoStatus === 'loading' && (
-                  <div className="w-40 h-40 mx-auto rounded-xl border flex flex-col items-center justify-center gap-2" style={{ borderColor: COLORS.border }}>
-                    <Loader2 size={24} color={COLORS.navy} strokeWidth={2} className="animate-spin" />
-                    <p className="text-[10px]" style={{ color: COLORS.muted }}>{tr('កំពុងបង្កើត QR...', 'Generating QR...')}</p>
-                  </div>
-                )}
-
-                {autoStatus === 'waiting' && autoQr && (
-                  <>
-                    <div className="flex justify-center mb-2">
-                      <img
-                        src={autoQr.qrImage}
-                        alt="ABA KHQR Payment"
-                        className="w-44 h-44 rounded-xl border bg-white object-contain p-1"
-                        style={{ borderColor: COLORS.border }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-center gap-1.5 mb-2">
-                      <Loader2 size={12} color={COLORS.navy} strokeWidth={2} className="animate-spin" />
-                      <p className="text-[10px] font-semibold" style={{ color: COLORS.navy }}>
-                        {tr(`កំពុងរង់ចាំការទូទាត់... (${formatCountdown(secondsLeft)})`, `Waiting for payment... (${formatCountdown(secondsLeft)})`)}
-                      </p>
-                    </div>
-                    {autoQr.abapayDeeplink && (
-                      <a
-                        href={autoQr.abapayDeeplink}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border text-[11px] font-semibold"
-                        style={{ borderColor: COLORS.border, color: COLORS.navy }}
-                      >
-                        <Smartphone size={13} color={COLORS.navy} strokeWidth={2} />
-                        {tr('បើក App ABA Mobile', 'Open ABA Mobile App')}
-                      </a>
-                    )}
-                  </>
-                )}
-
-                {autoStatus === 'expired' && (
-                  <div className="text-center py-2">
-                    <p className="text-[11px] mb-2" style={{ color: COLORS.danger }}>
-                      {tr('QR បានផុតកំណត់ពេលហើយ', 'This QR code has expired')}
-                    </p>
-                    <button
-                      onClick={handleGenerateAutoQr}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-bold text-white text-xs"
-                      style={{ backgroundColor: COLORS.navy }}
-                    >
-                      <RefreshCw size={13} color="#FFFFFF" strokeWidth={2} />
-                      {tr('បង្កើត QR ថ្មី', 'Generate New QR')}
-                    </button>
-                  </div>
-                )}
-
-                {autoStatus === 'error' && (
-                  <div className="text-center py-2">
-                    <p className="text-[11px] mb-2" style={{ color: COLORS.danger }}>{autoError}</p>
-                    <button
-                      onClick={handleGenerateAutoQr}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-bold text-white text-xs"
-                      style={{ backgroundColor: COLORS.navy }}
-                    >
-                      <RefreshCw size={13} color="#FFFFFF" strokeWidth={2} />
-                      {tr('ព្យាយាមម្តងទៀត', 'Try Again')}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Disclosure toggle for the old manual-proof flow, kept as a fallback */}
-              <button
-                onClick={() => setShowManual((v) => !v)}
-                className="w-full flex items-center justify-center gap-1 py-1.5 mb-3 text-[10px] font-medium underline"
-                style={{ color: COLORS.muted }}
-              >
-                {showManual ? <ChevronUp size={12} color={COLORS.muted} /> : <ChevronDown size={12} color={COLORS.muted} />}
-                {tr('មិនអាចស្កេនបាន? ផ្ទៀងផ្ទាត់ដោយដៃ', "Can't scan? Use manual verification")}
-              </button>
-
-              {showManual && (
+              {/* Payment card */}
               <div className="rounded-2xl border p-4" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgApp }}>
                 {/* Currency + total, at the top of the payment section */}
                 <div className="flex items-center justify-between mb-3">
@@ -627,28 +436,19 @@ export default function SubscriptionModal({ lang, profile, trialDaysRemaining, o
                   )}
                 </div>
               </div>
-              )}
             </>
           ) : (
             <div className="text-center py-6">
               <CheckCircle2 size={40} color={COLORS.success} strokeWidth={1.5} className="mx-auto" />
               <p className="text-sm font-bold mt-3" style={{ color: COLORS.navy }}>
-                {autoStatus === 'confirmed'
-                  ? tr('ការទូទាត់បានជោគជ័យ!', 'Payment confirmed!')
-                  : tr('បានទទួលសំណើរបស់អ្នក', 'Request received')}
+                {tr('បានទទួលសំណើរបស់អ្នក', 'Request received')}
               </p>
               <p className="text-xs mt-1 px-4" style={{ color: COLORS.muted }}>
-                {autoStatus === 'confirmed'
-                  ? tr(
-                      'PayWay បានបញ្ជាក់ការទូទាត់របស់អ្នកដោយស្វ័យប្រវត្តិ។ គម្រោងសមាជិកភាពរបស់អ្នកបានធ្វើឱ្យសកម្មភ្លាមៗ។',
-                      'PayWay confirmed your payment automatically. Your subscription is active now.'
-                    )
-                  : tr(
-                      'សូមរង់ចាំការផ្ទៀងផ្ទាត់ពី Admin (ជាធម្មតាក្នុងរយៈពេលពីរបីម៉ោង)។ ជូនដំណឹង Telegram ដើម្បីលឿនជាង។',
-                      'Please wait for admin verification (usually within a few hours). Notify via Telegram for faster confirmation.'
-                    )}
+                {tr(
+                  'សូមរង់ចាំការផ្ទៀងផ្ទាត់ពី Admin (ជាធម្មតាក្នុងរយៈពេលពីរបីម៉ោង)។ ជូនដំណឹង Telegram ដើម្បីលឿនជាង។',
+                  'Please wait for admin verification (usually within a few hours). Notify via Telegram for faster confirmation.'
+                )}
               </p>
-              {autoStatus !== 'confirmed' && (
               <button
                 onClick={onOpenTelegram}
                 className="mt-4 mr-2 px-4 py-2 rounded-lg font-bold text-xs border inline-flex items-center gap-1.5"
@@ -657,7 +457,6 @@ export default function SubscriptionModal({ lang, profile, trialDaysRemaining, o
                 <Send size={13} color={COLORS.navy} strokeWidth={2} />
                 {tr('ជូនដំណឹង Telegram', 'Notify on Telegram')}
               </button>
-              )}
               <button
                 onClick={onClose}
                 className="mt-4 px-5 py-2 rounded-lg font-bold text-xs text-white"
