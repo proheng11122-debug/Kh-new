@@ -355,7 +355,7 @@ export default function AccountScreen({ lang, profile, onBack, onLogout, onLangT
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ backgroundColor: COLORS.bgApp }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: COLORS.bgApp }}>
       {/* Header */}
       <div
         className="px-4 pt-4 pb-4 flex items-center gap-3"

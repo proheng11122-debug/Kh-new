@@ -360,7 +360,7 @@ export default function InvoiceOverview({
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ backgroundColor: COLORS.bgApp, ...khmerFont }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: COLORS.bgApp, ...khmerFont }}>
       {/* Header */}
       <div
         className="px-4 pt-5 pb-4 flex items-center gap-3"

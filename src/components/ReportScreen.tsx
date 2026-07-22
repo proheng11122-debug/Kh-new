@@ -199,7 +199,7 @@ export default function ReportScreen({ lang, profile, onBack }: Props) {
   const netKHR = data.incomeKHR - data.expenseKHR;
 
   return (
-    <div className="h-full flex flex-col" style={{ backgroundColor: COLORS.bgApp }} id="report-root">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: COLORS.bgApp }} id="report-root">
       {/* Header — hidden when printing */}
       <div
         className="px-4 pt-5 pb-6 flex items-center gap-3 print:hidden"
