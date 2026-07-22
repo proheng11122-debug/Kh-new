@@ -14,12 +14,45 @@ const FeatureBadge: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }}>{children}</div>
 )
 
-const InvoiceCard: React.FC = () => (
+const RowItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div style={{
-    width: 150,
-    transform: 'translateY(18px) rotate(-6deg)',
-    zIndex: 1,
+    display: 'flex',
+    padding: '4px 6px',
+    fontSize: 6,
+    borderTop: '0.5px solid #EFEDE5',
+    color: '#0B2A4A',
   }}>
+    <span style={{ flex: 2 }}>{label}</span>
+    <span style={{ flex: 1, textAlign: 'right' }}>{value}</span>
+  </div>
+)
+
+const StatBar: React.FC<{ label: string; value: string; color: string; track: string; width: string }> = ({ label, value, color, track, width }) => (
+  <>
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 6.5, marginBottom: 2 }}>
+      <span style={{ color: '#0B2A4A' }}>{label}</span>
+      <span style={{ color, fontWeight: 700 }}>{value}</span>
+    </div>
+    <div style={{ height: 4, borderRadius: 3, background: track, marginBottom: 6 }}>
+      <div style={{ width, height: 4, borderRadius: 3, background: color }} />
+    </div>
+  </>
+)
+
+const ReportBar: React.FC<{ label: string; value: string; width: string }> = ({ label, value, width }) => (
+  <>
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 5.5, marginBottom: 2 }}>
+      <span style={{ color: '#0B2A4A' }}>{label}</span>
+      <span style={{ color: '#378ADD', fontWeight: 700 }}>{value}</span>
+    </div>
+    <div style={{ height: 3, borderRadius: 2, background: '#E6F1FB', marginBottom: 5 }}>
+      <div style={{ width, height: 3, borderRadius: 2, background: '#378ADD' }} />
+    </div>
+  </>
+)
+
+const InvoiceCard: React.FC = () => (
+  <div style={{ width: 150, transform: 'translateY(18px) rotate(-6deg)', zIndex: 1 }}>
     <div style={{ background: '#08213A', borderRadius: 20, padding: 5, boxShadow: '0 20px 40px rgba(0,0,0,0.35)' }}>
       <div style={{ background: '#FAFAF8', borderRadius: 15, overflow: 'hidden' }}>
         <div style={{
@@ -52,19 +85,6 @@ const InvoiceCard: React.FC = () => (
         </div>
       </div>
     </div>
-  </div>
-)
-
-const RowItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div style={{
-    display: 'flex',
-    padding: '4px 6px',
-    fontSize: 6,
-    borderTop: '0.5px solid #EFEDE5',
-    color: '#0B2A4A',
-  }}>
-    <span style={{ flex: 2 }}>{label}</span>
-    <span style={{ flex: 1, textAlign: 'right' }}>{value}</span>
   </div>
 )
 
@@ -113,18 +133,6 @@ const DashboardCard: React.FC = () => (
   </div>
 )
 
-const StatBar: React.FC<{ label: string; value: string; color: string; track: string; width: string }> = ({ label, value, color, track, width }) => (
-  <>
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 6.5, marginBottom: 2 }}>
-      <span style={{ color: '#0B2A4A' }}>{label}</span>
-      <span style={{ color, fontWeight: 700 }}>{value}</span>
-    </div>
-    <div style={{ height: 4, borderRadius: 3, background: track, marginBottom: 6 }}>
-      <div style={{ width, height: 4, borderRadius: 3, background: color }} />
-    </div>
-  </>
-)
-
 const ReportCard: React.FC = () => (
   <div style={{ width: 150, transform: 'translateY(18px) rotate(6deg)', zIndex: 1 }}>
     <div style={{ background: '#08213A', borderRadius: 20, padding: 5, boxShadow: '0 20px 40px rgba(0,0,0,0.35)' }}>
@@ -145,18 +153,6 @@ const ReportCard: React.FC = () => (
   </div>
 )
 
-const ReportBar: React.FC<{ label: string; value: string; width: string }> = ({ label, value, width }) => (
-  <>
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 5.5, marginBottom: 2 }}>
-      <span style={{ color: '#0B2A4A' }}>{label}</span>
-      <span style={{ color: '#378ADD', fontWeight: 700 }}>{value}</span>
-    </div>
-    <div style={{ height: 3, borderRadius: 2, background: '#E6F1FB', marginBottom: 5 }}>
-      <div style={{ width, height: 3, borderRadius: 2, background: '#378ADD' }} />
-    </div>
-  </>
-)
-
 const Banner: React.FC = () => (
   <div style={{
     ...Battambang,
@@ -169,7 +165,7 @@ const Banner: React.FC = () => (
     maxWidth: 460,
     boxSizing: 'border-box',
   }}>
-    <h2 className="sr-only" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
+    <h2 style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
       រូបភាព design ពេញលេញសម្រាប់ផ្សព្វផ្សាយ app KH Invoice កំណែទី២
     </h2>
 

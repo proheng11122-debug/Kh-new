@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Apple, Smartphone, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Apple, Smartphone, Mail, Lock, User, Eye, EyeOff, ArrowRight, Download } from 'lucide-react'
 import Banner from './Banner'
 import InstallModal from './InstallModal'
 
@@ -15,7 +15,7 @@ const App: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // placeholder — wire to Supabase auth later
+    // Wire to Supabase auth later
     console.log(mode, form)
   }
 
@@ -33,11 +33,6 @@ const App: React.FC = () => {
         <Banner />
       </div>
 
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
-
       {/* Caption */}
       <div style={{ textAlign: 'center', maxWidth: 420, ...Battambang, animation: 'slideUp 0.5s ease 0.1s both' }}>
         <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.9)', lineHeight: 1.6 }}>
@@ -49,13 +44,13 @@ const App: React.FC = () => {
       {/* Download buttons */}
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', animation: 'slideUp 0.5s ease 0.15s both' }}>
         <DownloadButton
-          icon={<Apple size={20} />}
+          icon={<Apple size={22} />}
           topLabel="Download on the"
           bottomLabel="App Store"
           onClick={() => setInstallOpen(true)}
         />
         <DownloadButton
-          icon={<Smartphone size={20} />}
+          icon={<Smartphone size={22} />}
           topLabel="GET IT ON"
           bottomLabel="Google Play"
           onClick={() => setInstallOpen(true)}
@@ -81,7 +76,8 @@ const App: React.FC = () => {
           transition: 'all 0.2s',
         }}
       >
-        📲 របៀបដំឡើងទៅ Home Screen
+        <Download size={14} />
+        របៀបដំឡើងទៅ Home Screen
       </button>
 
       {/* Auth card */}
@@ -176,12 +172,7 @@ const App: React.FC = () => {
           </button>
         </form>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          margin: '20px 0',
-        }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
           <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.15)' }} />
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', ...Battambang }}>ឬ</span>
           <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.15)' }} />
@@ -224,6 +215,17 @@ const App: React.FC = () => {
           </span>
         </p>
       </div>
+
+      {/* Footer text */}
+      <p style={{
+        textAlign: 'center',
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.35)',
+        maxWidth: 380,
+        ...Battambang,
+      }}>
+        ដោយចូលប្រើ អ្នកយល់ព្រមនឹងលក្ខខណ្ឌប្រើប្រាស់ និងគោលការណ៍ឯកជនភាពរបស់ KH Invoice
+      </p>
 
       <InstallModal open={installOpen} onClose={() => setInstallOpen(false)} />
     </div>
